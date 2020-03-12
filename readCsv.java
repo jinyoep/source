@@ -62,7 +62,7 @@ public class readCsv {
 			while ((line = br.readLine()) != null) {
 				// CSV 1행을 저장하는 리스트
 				List<String> tmpList = new ArrayList<String>();
-				String array[] = line.split(",");
+				String array[] = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 				
 				if(array.length > 0) {
 					if(!array[0].equals("")) {
