@@ -1,0 +1,16 @@
+
+create table ipa.yms_u_pord_oper ( 
+fab string not null, 
+oper string not null, 
+prod string not null, 
+row doubele null, 
+`type` string null, 
+inno double null, 
+update_dt_tm string null, 
+primary key (fab, oper, prod) 
+) 
+PARTITION BY HASH ( fab, oper, prod ) PARTITIONS 32
+STORED AS KUDU
+TBLPROPERTIES (
+    'kudu.master_addresses' = 'test1.com,test2.com,test3.com'
+);
