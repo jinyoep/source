@@ -1,13 +1,13 @@
 create table ipa.yms_u_prod_oper_csv ( 
-fab string ,
-oper string ,
-prod string ,
-wf string ,
-row int ,
-cnt smailint ,
-`type` string ,
-inno double ,
-update_dt_tm timestamp 
+	fab string ,
+	oper string ,
+	prod string ,
+	wf string ,
+	row int ,
+	cnt smailint ,
+	`type` string ,
+	inno double ,
+	update_dt_tm timestamp 
 ) ROW FORMAT DELIMITED (                                           
 FIELDS TERMINATED BY ','),
 LOCATION (
@@ -21,14 +21,14 @@ OUTPUTFORMAT(
 
 
 create table ipa.qdw_q_inl_rep_data_csv ( 
-fab string ,
-prmt string ,
-wf string ,
-row int ,
-cnt smailint ,
-`type` string ,
-inno double ,
-update_dt_tm timestamp 
+	fab string ,
+	prmt string ,
+	wf string ,
+	row int ,
+	cnt smailint ,
+	`type` string ,
+	inno double ,
+	update_dt_tm timestamp 
 ) ROW FORMAT DELIMITED (                                           
 FIELDS TERMINATED BY ','),
 LOCATION (

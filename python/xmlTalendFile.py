@@ -1,6 +1,6 @@
 import re, os
 from xml.etree.ElementTree import Element,ElementTree,dump
-
+import xml.etree.ElementTree as ET
 
 class xmlTalendFile():
 
@@ -8,6 +8,8 @@ class xmlTalendFile():
     db_info = ""
     tName = ""
     xml = ""
+
+    arr_pk = []
 
     xml_total = 0
 
@@ -30,7 +32,16 @@ class xmlTalendFile():
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i  
 
-    def xmlWriteFile(self):
+    def xmlWriteFile(self):        
+        for p in self.arr_pk:
+            #tree = ET.ElementTree(ET.fromstring(self.xml.strip())) # String value
+            tree = ET.ElementTree(self.xml)
+            root = tree.getroot()
+            elem = tree.findall('column')
+            for elem1 in elem:
+                if elem1.attrib["label"] == p:
+                    elem1.attrib["key"] = "true"
+
         self.indent(self.xml)
         print("##### XML File : {tn}.xml #####".format(tn=self.tName));
         dump(self.xml)
@@ -73,7 +84,8 @@ class xmlTalendFile():
                     for wd in result:
                         pk_cnt += 1                                                
                         if pk_cnt > 2:
-                            for st in t_str.findall(wd):                                
+                            for st in t_str.findall(wd):
+                                self.arr_pk.append(st)                                                                
                                 print("################# PK :", st)  #PK 추출
                                 #node1.attrib[st].replace("stag", "prod")
                                 #print('node : ', node1)
@@ -82,6 +94,8 @@ class xmlTalendFile():
                 elif ');' in result:
                     self.xml = root
                     self.xmlWriteFile();
+
+                    self.arr_pk = [] # 초기화
                 else :
                     col_cnt = 0
                     if len(result) > 2 :

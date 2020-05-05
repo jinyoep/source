@@ -1,14 +1,14 @@
 create table ipa.yms_u_prod_oper ( 
-fab string not null, 
-oper string not null, 
-prod string not null, 
-wf string not null, 
-row int null, 
-cnt smailint null, 
-`type` string null, 
-inno double null, 
-update_dt_tm timestamp null, 
-primary key (fab, oper, prod) 
+	fab string not null, 
+	oper string not null, 
+	prod string not null, 
+	wf string not null, 
+	row int null, 
+	cnt smailint null, 
+	`type` string null, 
+	inno double null, 
+	update_dt_tm timestamp null, 
+	primary key (fab, oper, prod) 
 ) PARTITION BY HASH ( fab, oper, prod ) PARTITIONS 32
 STORED AS KUDU
 TBLPROPERTIES (
@@ -17,15 +17,15 @@ TBLPROPERTIES (
     
 
 create table ipa.qdw_q_inl_rep_data ( 
-fab string not null, 
-prmt string not null, 
-wf string not null, 
-row int null, 
-cnt smailint null, 
-`type` string null, 
-inno double null, 
-update_dt_tm timestamp null, 
-primary key (fab, prmt) 
+	fab string not null, 
+	prmt string not null, 
+	wf string not null, 
+	row int null, 
+	cnt smailint null, 
+	`type` string null, 
+	inno double null, 
+	update_dt_tm timestamp null, 
+	primary key (fab, prmt) 
 ) PARTITION BY HASH ( fab, prmt ) PARTITIONS 12
 STORED AS KUDU
 TBLPROPERTIES (

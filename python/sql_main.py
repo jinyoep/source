@@ -19,9 +19,8 @@ sel_ddl_path = os.path.dirname(os.path.realpath(__file__)) + spare + conf.values
 
 if __name__ == "__main__":
     print("##### Main Start #####");
-
-   
-    ''' sucess        '''
+  
+    ''' sucess  '''    
     # talend xml file create
     print("##### file read changing to xml #####")
     xl = xmlTalendFile(src_file, conf.values.db_info)
@@ -38,5 +37,5 @@ if __name__ == "__main__":
     # select query list
     sel = selQueryList(src_file, sel_ddl_path)
     sel.read_query()
-    sel.showMsg()    
-
+    sel.showMsg()  
+    

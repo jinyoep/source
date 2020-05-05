@@ -83,7 +83,7 @@ OUTPUTFORMAT(
 
     def hive_csv_table_total(self, q, url, sch, tab):
         #print("### q : ",q)
-        self.chaged_hive_csv_create_ddl = re.sub(',\nprimary.*','', q) + self.hive_csv_end_line_sql.format(hdfs_uri=url, schema=sch, table=tab)
+        self.chaged_hive_csv_create_ddl = re.sub(',\n\tprimary.*','', q) + self.hive_csv_end_line_sql.format(hdfs_uri=url, schema=sch, table=tab)
         print(self.chaged_hive_csv_create_ddl)
         self.writeFile(self.chaged_hive_csv_create_ddl, self.csv_path)    
 
@@ -97,18 +97,16 @@ OUTPUTFORMAT(
         kudu_create_ddl = "" 
         hive_csv_create_ddl = ""
         csvSchema = ""
-        csvTable = ""           
-        
+        csvTable = "" 
+   
         with open(self.src_file, 'r') as f:
             lines = f.readlines()
             count = len(lines) 
-            
 
             print('##### total_lines : {cnt} \n'.format(cnt=count))
 
             for line in lines:
-                result = self.p.findall(line.lower())                
-
+                result = self.p.findall(line.lower())             
 
                 if line.lower().find('primary') > -1:            
                     arr_str = re.findall('\(([^)]+)', line.lower())
@@ -118,6 +116,7 @@ OUTPUTFORMAT(
                     #print(pk_key) 
                     #print('pk_key : {0}'.format(pk_key))
 
+                col_cnt = 0    
                 for res in result:                    
                     chg_str = res.replace("\"","`")
                     
@@ -141,20 +140,29 @@ OUTPUTFORMAT(
                     elif chg_str.find(');') > -1:
                         kudu_create_ddl += ') '
                         hive_csv_create_ddl += ') '
-                        self.kudu_table_total(kudu_create_ddl, self.table_cnt, self.pk_key)
+                        self.kudu_table_total(kudu_create_ddl, self.table_cnt, self.pk_key)                        
                         self.hive_csv_table_total(hive_csv_create_ddl, self.hdfs_uri, csvSchema, csvTable)                        
                         self.table_cnt += 1
-                        kudu_create_ddl = ""
-                        hive_csv_create_ddl = ""                       
+                        kudu_create_ddl = ""        # 초기화
+                        hive_csv_create_ddl = ""    # 초기화                  
                     else:
-                        kudu_create_ddl += str(chg_str) + ' '
+                        if col_cnt == 0 and not (chg_str.find("create") > -1):
+                            kudu_create_ddl += "\t"+ str(chg_str) + ' '
+                        else:
+                            kudu_create_ddl += str(chg_str) + ' '
+
                         if chg_str.find('not') > -1:
                             hive_csv_create_ddl += ''
                         elif chg_str.find('null') > -1:
                             hive_csv_create_ddl += ','                        
                         else:
-                            hive_csv_create_ddl += str(chg_str) + ' '    
+                            if col_cnt == 0 and not (chg_str.find("create") > -1):
+                                hive_csv_create_ddl += "\t"+ str(chg_str) + ' ' 
+                            else:
+                                hive_csv_create_ddl += str(chg_str) + ' ' 
             
+                    col_cnt += 1
+
                 kudu_create_ddl += '\n'
                 hive_csv_create_ddl += '\n'
                 #print(result)              
