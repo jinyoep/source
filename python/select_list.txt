@@ -1,0 +1,12 @@
+SELECT fab, oper, prod, wf, row, cnt, type, inno, update_dt_tm, 
+FROM yms.u_prod_oper
+WHERE 1=1
+AND DW_UPDATE_DT_TM between '"+Prop.startDateTime+"' AND '"+Prop.endDateTime+"'
+WITH UR
+
+SELECT fab, prmt, wf, row, cnt, type, inno, update_dt_tm, 
+FROM qdw.q_inl_rep_data
+WHERE 1=1
+AND DW_UPDATE_DT_TM between '"+Prop.startDateTime+"' AND '"+Prop.endDateTime+"'
+WITH UR
+

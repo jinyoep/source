@@ -1,14 +1,15 @@
-from ddlparse.ddlparse import DdlParse
+#from ddlparse.ddlparse import DdlParse
 from xml.etree.ElementTree import Element,ElementTree,dump
 import re
 import threading, requests, time
+import os
 
 p = re.compile('[a-z|_.,\(\)|0-9|\"]+')
 pk_list = re.compile('[a-z]]+')
 
-src_file = "I:\\git\\source\\python\\sql.txt"
-tar_file = "I:\\git\\source\\python\\{tb}.txt"
-tar_file_2 = "I:\\git\\source\\python\\{tb}.xml"
+src_file = os.path.dirname(os.path.realpath(__file__)) + "\sql.txt"
+tar_file = os.path.dirname(os.path.realpath(__file__)) + "\{tb}.txt"
+tar_file_2 = os.path.dirname(os.path.realpath(__file__)) + "\{tb}.xml"
 
 result = []
 table_name = ""
@@ -97,10 +98,10 @@ def read_file(val):
             if chg_str.find('.') > -1:              
                 table_name = chg_str
 
-            if chg_str.find('varchar') > -1 or chg_str.find('timestamp') > -1:                
+            if chg_str.find('varchar') > -1 or chg_str.find('char') > -1:                
                 kudu_create_ddl += 'string '
-            elif chg_str.find('numeric') > -1:
-                kudu_create_ddl += 'double '
+            elif chg_str.find('integer') > -1:
+                kudu_create_ddl += 'int '
             else:
                 kudu_create_ddl += str(chg_str) + ' '
        
@@ -185,7 +186,7 @@ class HtmlGetter (threading.Thread):
         print(self.url, len(resp.text), 'chars')
 
 if __name__ == "__main__":
-    read_file(32)
+    #read_file(32)
     #print(kudu_end_line_sql.format(pk='fab, oper, prod', hash_cnt=32))
     #sample_ddlParse()
    
@@ -193,9 +194,16 @@ if __name__ == "__main__":
     #print(table_name)
     #print(pk_key)
     
-    write_file()
+    #write_file()
 
     #xml_write_file()
+
+    
+    print(__file__)
+
+    print(src_file)
+    print(tar_file)
+    print(tar_file_2)
 
     '''
     iu = Member("IU")    

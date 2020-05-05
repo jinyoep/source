@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<schema dbasId="ibmdb2_id">
+  <column comment="" default="" key="false" label="FAB" length="10" nullable="false" originalDbColumn="FAB" originalLength="10" pattern="" precision="" talendType="id_String" type="VARCHAR" />
+  <column comment="" default="" key="false" label="OPER" length="50" nullable="false" originalDbColumn="OPER" originalLength="50" pattern="" precision="" talendType="id_String" type="VARCHAR" />
+  <column comment="" default="" key="false" label="PROD" length="100" nullable="false" originalDbColumn="PROD" originalLength="100" pattern="" precision="" talendType="id_String" type="VARCHAR" />
+  <column comment="" default="" key="false" label="WF" length="2" nullable="false" originalDbColumn="WF" originalLength="2" pattern="" precision="" talendType="id_String" type="CHAR" />
+  <column comment="" default="" key="false" label="ROW" nullable="true" originalDbColumn="ROW" talendType="id_Integer" type="INTEGER" />
+  <column comment="" default="" key="false" label="CNT" nullable="true" originalDbColumn="CNT" talendType="id_Short" type="SMAILINT" />
+  <column comment="" default="" key="false" label="TYPE" length="20" nullable="true" originalDbColumn="TYPE" originalLength="20" pattern="" precision="" talendType="id_String" type="VARCHAR" />
+  <column comment="" default="" key="false" label="INNO" nullable="true" originalDbColumn="INNO" talendType="id_Double" type="DOUBLE" />
+  <column comment="" default="" key="false" label="UPDATE_DT_TM" nullable="true" originalDbColumn="UPDATE_DT_TM" pattern="&amp;quot;dd-MM-yyyy&amp;quot;" talendType="id_Date" type="TIMESTAMP" />
+</schema>

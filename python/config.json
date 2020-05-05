@@ -1,0 +1,11 @@
+{
+    "src": "sql.txt",
+    "tar": { "no1" : "kudu_list.txt",
+        "no2" : "hive_csv_list.txt",
+        "no3" : "select_list.txt"        
+    },
+    "hash": "hash_size.txt",
+    "hdfs_uri" : "HDFS_CDH",
+    "db_info": "ibmdb2_id"
+    
+}
