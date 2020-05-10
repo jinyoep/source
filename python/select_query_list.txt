@@ -1,0 +1,10 @@
+SELECT fab, oper, prod, wf, row, 
+cnt, `type`, inno, update_dt_tm 
+FROM ipa.yms_u_prod_oper
+;
+
+SELECT fab, prmt, inno, wf_yn, row, 
+cnt, `type`, update_dt_tm 
+FROM ipa.qdw_q_inl_rep_data
+;
+
