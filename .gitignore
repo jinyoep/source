@@ -1,0 +1,5 @@
+*.txt
+*.xml
+*.pyc
+.vscode/settings.json
+.python/__pycache__/
