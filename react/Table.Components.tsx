@@ -5,8 +5,11 @@ import React, {
     useMemo,
     Component,    
     PropsWithChildren,
+    forwardRef,
+    useRef,
+    useImperativeHandle
   } from 'react';
-  import {
+    import {
     Form,
     Table,
     Input,
@@ -78,6 +81,8 @@ import React, {
   const dateTimeFormat = 'YYYY-MM-DD HH:mm:ss';
   const dateFormat = 'YYYY-MM-DD';
   const timeFormat = 'HH:mm';
+
+  
   
   function updateChangedData(changedData: any[], item: any, rowKey: string = 'id'): any[] {
     let result: any[];
@@ -192,6 +197,7 @@ import React, {
         tmp[k] = record[k];
       }
     });
+    
     form.setFieldsValue(tmp);
   }
   
@@ -431,6 +437,8 @@ import React, {
   };
   
   const defaultArr = [];
+
+  const selectedRowData2 = [];
   /*const defaultArr:any[] = [
     {   
       title: 'id',
@@ -451,11 +459,10 @@ import React, {
       width: 120, 
     },
 ];*/
-
-
   
-   
-  const EditableTable: React.FC<ETableProps> = ({
+
+  const EditableTable: React.FC<ETableProps> = forwardRef(({
+    
                                                   name ,
                                                   bordered = true,
                                                   lang = 'ko',
@@ -466,7 +473,9 @@ import React, {
                                                   cols = defaultArr,
                                                   allCols = [],
                                                   data = [],
+                                                  orgdata = [],
                                                   changedData = defaultArr,
+                                                  selectedRowData = selectedRowData2,
                                                   loading = false,
                                                   currentPage = 1,
                                                   pageSize = 10,
@@ -484,7 +493,7 @@ import React, {
                                                   showBottomPager = true,
                                                   showDownload = true,
                                                   showExpandBtn = true,
-                                                  showSearchInput = false,
+                                                  showSearchInput = true,
                                                   buttons,
                                                   canEdit = () => true,
                                                   canRemove = () => true,
@@ -493,6 +502,7 @@ import React, {
                                                   onAdd = () => ({}),
                                                   onFetch = () => {console.log('onFetch:')},
                                                   onChangedDataUpdate = (a) => {console.log('onChangedDataUpdate:', a )},
+                                                  onChangedSelectedDataUpdate = (a, b) => {console.log('onChangedSelectedDataUpdate:', a )},
                                                   onDownload,
                                                   onSelectRow = (a) => {console.log('onSelectRow:', a)},
                                                   onAddRow = () => ({}),
@@ -502,7 +512,7 @@ import React, {
                                                   onExpandedRow = () => {},
                                                   parentForm,
                                                   ...rest
-                                                }) => {
+                                                },ref) => {
     const [form] = Form.useForm(parentForm);
     const [showSelector, setShowSelector] = useState<boolean>(defaultShowSelecor);
     const [editingKey, setEditingKey] = useState<string>('');
@@ -530,53 +540,23 @@ import React, {
       return d;
     });
 
-
-    console.log('#### changedData : ', changedData );
+   
     const newData = changedData.filter(s => s.isNew);
-    console.log('#### newData : ', newData );
+   
+ 
 
-    
+    useImperativeHandle(ref, () => ({
 
-    const [tdata, setTdata] = useState([]);
-
-    
-    const [originalData, setOriginalData] = useState([]);
-
-    const search2 = (searchInput:string) => {    
-        console.log("PASS", { searchInput });
-
-        let filteredData = originalData.filter(value => {
-            return (
-            value.id.toLowerCase().includes(searchInput.toLowerCase()) ||
-            value.name.toLowerCase().includes(searchInput.toLowerCase()) ||
-            value.etc
-                .toString()
-                .toLowerCase()
-                .includes(searchInput.toLowerCase())
-        );
-    });
-
-    console.log("filterTable:", filteredData);
-
-    setTdata(filteredData);
-    //setState({ data: filteredData });
-    
-  };
-
-    
-    
-    
-    /*const demoData = [
-        {id:'jack', name:'job', num:10},
-        {id:'jhon', name:'Eric', num:80},
-        {id:'bil', name:'jens', num:50},
-    ];*/
+      getAlert() {
+        console.log("getAlert from Child");
+      }
   
-    
+    }));
   
+          
     const temp:any[] = [];
   
-    const dataSource = temp.concat(newData).reverse().concat(updateData);
+    let dataSource = temp.concat(newData).reverse().concat(updateData);
 
     
     const handleTableChange = (p?: any, f?: any, s?: any) => {
@@ -622,6 +602,7 @@ import React, {
     }
   
     const handleSelect = (record,rows)=>{
+      console.log('######## handleSelect : ',record ,rows);
       if (editOnSelected)
         setEditingKey(record[rowKey]);
       if (!selectedRowKeys.find(k => k === record[rowKey])) {
@@ -865,7 +846,18 @@ import React, {
         if(editOnSelected)
           setEditingKey(data[0][rowKey]);
       }
-    },[data]);
+
+      if(data !== null){
+        console.log("############ useEffect_data[0] : ", data[0]);
+        //handleSelect(data[0], [data[0]]);
+
+      }
+
+      console.log("############ useEffect_selectedRowData2 : ", selectedRowData2);
+    },[data, selectedRowData2]);
+
+
+    
   
     const expandable:any = useMemo(()=> {
       if(expandedRowRender){
@@ -996,6 +988,50 @@ import React, {
       )}
     />;
 
+    function searchText(e){
+      let keyword = e.target.value;
+      console.log('### searchText :', keyword);
+      console.log('### searchText_data :', orgdata);
+
+      
+      orgdata.map((row:any, index:number) => {
+        console.log("### searchText_row:", row);
+        console.log("### searchText_index:", index);
+      });
+               
+      var keys = Object.keys(orgdata[0]); // key 값 가져오기
+      console.log("### searchText_keys:",keys);
+
+      keys.forEach(element => console.log("### searchText_element:",element));
+
+      for(let i in keys){  console.log("### searchText_i:",keys[i])    }
+              
+      let keys_len = keys.length; // key 길이
+      const filteredData = orgdata.filter(value => {  
+        let ret = false; 
+        for(let i=0; i<keys_len; i++){
+          let obj = value[keys[i]].toString().toLowerCase().includes(keyword.toLowerCase());
+          if(obj === true){
+            ret = true;
+          }
+        }
+        return ret;
+      }); // 해당 text 검색 제외
+
+    
+      
+
+      console.log("### searchText_filterTable:", filteredData);
+      console.log("### searchText_orgdata:", orgdata);
+
+      
+      onChangedSelectedDataUpdate(filteredData, orgdata);
+      
+
+      
+      
+    }
+
     
   
     const table = <Table
@@ -1055,12 +1091,7 @@ import React, {
             </Tooltip>
           </>
           }
-          {showSearchInput && <Input.Search
-              style={{ border: "3px solid red", margin: "0 0 10px 0" }}
-              placeholder="Search by..."
-              enterButton
-              onSearch={search2}
-            />}
+          
           {showTopPager && (
             <>
               
@@ -1087,6 +1118,31 @@ import React, {
         </div>
       </div>
       <div >
+      {
+        showBottomPager &&
+       <Pagination
+          showSizeChanger
+          showQuickJumper
+          disabled={loading}
+          size="small"
+          pageSizeOptions={['5', '10', '20', '30', '40']}
+          showTotal={(t, _range) => {
+            return `${i18n['total.prefix']} ${t} ${i18n['total.suffix']}`;
+          }}
+          onChange={(current, size) => handleTableChange({ currentPage: current, pageSize: size })}
+          onShowSizeChange={(current, size) => handleTableChange({ currentPage: current, pageSize: size })}
+          current={pager.currentPage}
+          pageSize={pager.pageSize}
+          total={total}
+        />
+      }
+      {showSearchInput && <Tooltip title={i18n['download']}><Input
+              style={{ margin: "0 0 10px 0", width: 300 }}
+              placeholder="Search by..."  
+              onPressEnter={(e) => searchText(e)}            
+              
+            />
+            </Tooltip>}
         {showDownload && <Tooltip title={i18n['download']}>
           <DownloadOutlined onClick={() => handleDownload()}/>
         </Tooltip>}
@@ -1128,7 +1184,8 @@ import React, {
         </div>
       </EditableContext.Provider>
     );
-  };
+    
+  });
   
   interface StateProps {
     currentPage?: number;

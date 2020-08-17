@@ -4,6 +4,8 @@ import { RootState } from '../modules';
 import { getDashBardProfileAsync } from '../modules/dashboard';
 import ReactExport from "react-export-excel";
 import moment from 'moment';
+import styled from 'styled-components';
+import './dash_board.css';
 
 import { Button, Table, Layout, Row, Col, Tabs, DatePicker, Input, message } from 'antd';
 import 'antd/dist/antd.css';
@@ -19,6 +21,13 @@ function Dash_board() {
 
   const dateFormat = 'YYYY-MM-DD';
 
+  const ButtonContainer = styled.div`
+    .ant-btn-primary {
+      background-color: #757575;
+      border-color:  #757575;
+    }
+  `;
+
   const ExcelFile = ReactExport.ExcelFile;
   const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
   //const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
@@ -28,6 +37,8 @@ function Dash_board() {
 
   const [tdata, setTdata] = useState([]);
   const [tdata3, setTdata3] = useState([]);
+
+  
   const [originalData, setOriginalData] = useState([]);
 
   const [tkey, setTkey] = useState([]);
@@ -38,15 +49,20 @@ function Dash_board() {
   const [changedData,setChangedData] = useState([]);
   const [onAddRowFun,setOnAddRowFun] = useState([]);
 
-  
+  const [selectedRowData,setSelectedRowData] = useState({});
+
+  const [tableLoading, setTableLoading] = useState(false);
 
   
+
+  const [rowClick, setRowClick] = useState({seq:''});
 
   
   
 
   const test = (user:string) => {
     console.log("#user :" + user)
+    setTableLoading(true);
     dispatch(getDashBardProfileAsync.request(user));
    
        
@@ -78,8 +94,14 @@ function Dash_board() {
     {
       title: 'seq',
       dataIndex: 'seq',
-      
-      
+      render(text, record) {
+        return {
+        	props: {
+            style: { background: '#eee' },
+          },
+        	children: <div>{text}</div>,
+        };
+      },
     },
     {
       title: 'id',
@@ -153,7 +175,10 @@ function Dash_board() {
             }          
             
             
+            
           })
+
+          selectedRow({seq:j[0].seq, id:j[0].id, name:j[0].name, etc:j[0].etc});
 
           setMultiDataSet2(test);
 
@@ -161,6 +186,8 @@ function Dash_board() {
           setTdata3(tdata2);
           setOriginalData(tdata2);
           setTkey(tkey2);
+
+          setTableLoading(false);
         }
 
         console.log("multiDataSet:", multiDataSet)
@@ -171,7 +198,10 @@ function Dash_board() {
         
         console.log("#loading :" + loading);
         console.log("#error :" + error);
-  },[data, loading, error]);
+  },[data, rowClick, tableLoading, loading, error]);
+
+  
+
 
 
   function changefun(rs){
@@ -196,12 +226,46 @@ function Dash_board() {
 
   }
 
+  function changeSelect(rs, rs2){
+    setTdata(rs);
+    setOriginalData(rs2);
+  }
+
+  const childRef = useRef<any>();
+
+
+
   function addRow(){
     //let newData = [];
     //newData.push({sep:5, id:'TEST', name:'new data', etc:'module'});
     //setChangedData(newData);
     //setOnAddObj({sep:5, id:'TEST', name:'new data', etc:'module'});
+    //child.current.handleAdd();
+    //childRef.current.sayHi();
     
+
+ 
+    
+  }
+
+  function selectedRow(e){
+    console.log('#### selectedRow : ', e);
+    setSelectedRowData(e);
+  }
+
+  
+
+  const onClickRow = (record) => {
+    console.log('#onClickRow : ', record);
+    return {
+      onClick: () => {
+        setRowClick({seq:record.seq });
+      },
+    };
+  }
+  const setRowClassName = (record) => {
+    console.log('#setRowClassName : ', record);
+    return record.seq === rowClick.seq ? 'clickRowStyle' : '';
   }
 
 
@@ -229,7 +293,10 @@ function Dash_board() {
           <Row>
             <Tabs type="card" tabBarExtraContent={operations}>
               <TabPane tab="Tab 1" key="1">
-                <Table columns={columns} dataSource={tdata} rowKey="seq"   />  
+                <Table columns={columns} dataSource={tdata} rowKey="seq" 
+                  onRow={onClickRow} 
+                  rowClassName="table-hover"                  
+                />  
               </TabPane>
               <TabPane tab="Tab 2" key="2">
               <Table columns={columns} dataSource={tdata3} rowKey="seq" />
@@ -241,15 +308,21 @@ function Dash_board() {
             
           </Row>
           <Row>
+            <ButtonContainer>
             <Button type="primary" onClick={() => addRow() } >
               추가
+            </Button> 
+            </ButtonContainer>
+            <Button type="primary" onClick={() => addRow() } style={{ background: "red", borderColor: "yellow" }} >
+              추가2
             </Button> 
           </Row>
           <Row>
             <TableComponet 
               cols={columns}              
-              data={tdata}    
-              rowKey={'seq'}              
+              data={tdata}   
+              orgdata={originalData} 
+              rowKey={'seq'}//{(recode, index) => index}              
               total={tdata.length} 
               bordered={true}      
               showSelectRecord={true}    
@@ -257,13 +330,18 @@ function Dash_board() {
               showAddBtn={true}  
               showTopPager={true}   
               showDownload={true}
+              loading={tableLoading}
               showExpandBtn={true}  
               showSearchInput={true}   
               scroll={{x:800}}    
               changedData={changedData}               
-              onChangedDataUpdate={(rs) => changefun(rs)}                   
-              ref={selRow}
+              onChangedDataUpdate={(rs) => changefun(rs)}    
+              onChangedSelectedDataUpdate={(rs, rs2) => changeSelect(rs, rs2)}
+              selectedRow={selectedRowData}                             
               //style={{backgroundColor: '#d9d9d9'}}
+              //ref={childRef }
+              onSelectRow={(e) => selectedRow(e)}
+              
             /> 
           </Row>
         </Content>      

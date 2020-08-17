@@ -61,8 +61,10 @@ export  interface EditableCellProps {
     cols?: ETableColProps<any>[];
     allCols?: ETableColProps<any>[];
     data?: any[];
+    orgdata?: any[];
     changedData?: any[];
     loading?: boolean;
+    selectedRowData?: any[];
     currentPage?: number;
     pageSize?: number;
     total?: number;
@@ -88,6 +90,7 @@ export  interface EditableCellProps {
     onAdd?: (...args: any[]) => any;
     onFetch?: (...args: any[]) => void;
     onChangedDataUpdate?: (...args: any[]) => void;
+    onChangedSelectedDataUpdate?: (...args: any[]) => void;
     onDownload?: (...args: any[]) => any;
     onSelectRow?: (...args: any[]) => void;
     onAddRow?: (...args: any[]) => void;
