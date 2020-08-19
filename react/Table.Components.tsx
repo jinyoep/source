@@ -437,30 +437,8 @@ import React, {
   };
   
   const defaultArr = [];
-
   const selectedRowData2 = [];
-  /*const defaultArr:any[] = [
-    {   
-      title: 'id',
-      dataIndex: 'id',
-      editable: false,
-      width: 120,
-    },
-    {   
-      title: 'name',
-      dataIndex: 'name',
-      editable: true,
-      width: 120,    
-    },
-    {    
-      title: 'num',
-      dataIndex: 'num',
-      editable: true,  
-      width: 120, 
-    },
-];*/
   
-
   const EditableTable: React.FC<ETableProps> = forwardRef(({
     
                                                   name ,
@@ -527,11 +505,13 @@ import React, {
     const [columnsPopVisible, setColumnsPopVisible] = useState<boolean>(false);
     const [collapsed, setCollapsed] = useState<boolean>(false);
     const [expandedRowKeys,setExpandedRowKeys]  = useState<string[]>([]);
+
+    const [oriData,setOriData]  = useState<any[]>([]);
+    const [changeData,setChangeData]  = useState<any[]>([]);
   
-    const i18n = locale[lang.toLowerCase()];
+    const i18n = locale[lang.toLowerCase()]; // 언어 설정
 
     const updateData = data.filter(d => !!d).map(d => {
-      
       const updater = changedData.find(s => d[rowKey] === s[rowKey]);
       console.log('#### updateData_updater : ', updater );
       if (updater) {
@@ -557,6 +537,10 @@ import React, {
     const temp:any[] = [];
   
     let dataSource = temp.concat(newData).reverse().concat(updateData);
+
+    if(changeData.length > 0){
+      dataSource = changeData;
+    }
 
     
     const handleTableChange = (p?: any, f?: any, s?: any) => {
@@ -807,8 +791,9 @@ import React, {
       }
       return cols1.map((col, idx) => initChildCols(col, idx, editingKey, rowKey));
     };
-    useEffect(() => {
-      console.log('### cols : ', cols);
+
+// ####################################################################################### useEffect Start
+    useEffect(() => { // 컬럼 변경
       setColumnSeq(cols.map((c, idx) => ({ ...c, idx, visible: true })));
       if (!allCols || allCols.length === 0) {
         setAllColumnSeq(cols);
@@ -818,23 +803,27 @@ import React, {
     }, [cols]);
   
     useEffect(() => {
-        console.log('### changedData : ', changedData);
+        console.log('### useEffect_changedData : ', changedData);
       setColumns(getColumns());
     }, [editingKey, changedData, columnSeq]);
   
     useEffect(()=>{
+      console.log('### useEffect_changedData2 : ', changedData);
+      setChangeData([]);      
       if(selectedRowKeys.length === 1){
         const updatedRow = changedData.find(c => c[rowKey] === selectedRowKeys[0]);
         if(updatedRow) {
+          console.log('### useEffect_updatedRow : ', updatedRow);
+          console.log('### useEffect_updatedRow2 : ', dataSource);
           setFormValue(form, updatedRow, columns);
+          setOriData(dataSource);
         }
       }
     },[changedData]);
   
-    useEffect(() => setPager({ currentPage, pageSize }), [currentPage, pageSize]);
+    useEffect(() => setPager({ currentPage, pageSize }), [currentPage, pageSize]); // 페이징 처리
     
     useEffect(()=> {
-        
       if(expandedRowKeys.length > 0 && data && data.length > 0){
         const updateData = data.find(d => d[rowKey] === expandedRowKeys[0]);
         setFormValue(form,updateData,columns);
@@ -848,17 +837,25 @@ import React, {
       }
 
       if(data !== null){
-        console.log("############ useEffect_data[0] : ", data[0]);
+        console.log("############ useEffect_data : ", data);
         //handleSelect(data[0], [data[0]]);
-
+        setOriData(data);
       }
+      //console.log("############ useEffect_selectedRowData2 : ", selectedRowData2);
 
-      console.log("############ useEffect_selectedRowData2 : ", selectedRowData2);
-    },[data, selectedRowData2]);
+      
+    },[data]); //, selectedRowData2
 
+    useEffect(()=> {
+      console.log("############ useEffect_oriData : ", oriData);
+      console.log("############ useEffect_changeData : ", changeData);
 
-    
-  
+      
+
+    },[oriData, changeData]);
+
+// ####################################################################################### useEffect End
+
     const expandable:any = useMemo(()=> {
       if(expandedRowRender){
         return {
@@ -914,7 +911,7 @@ import React, {
                     showSizeChanger
                     showQuickJumper
                     disabled={loading}
-                    size="small"
+                    //size="small"
                     pageSizeOptions={['5', '10', '20', '30', '40']}
                     showTotal={(t, _range) => {
                       return `${i18n['total.prefix']} ${t} ${i18n['total.suffix']}`;
@@ -991,15 +988,15 @@ import React, {
     function searchText(e){
       let keyword = e.target.value;
       console.log('### searchText :', keyword);
-      console.log('### searchText_data :', orgdata);
+      console.log('### searchText_data :', oriData);
 
       
-      orgdata.map((row:any, index:number) => {
+      oriData.map((row:any, index:number) => {
         console.log("### searchText_row:", row);
         console.log("### searchText_index:", index);
       });
                
-      var keys = Object.keys(orgdata[0]); // key 값 가져오기
+      var keys = Object.keys(oriData[0]); // key 값 가져오기
       console.log("### searchText_keys:",keys);
 
       keys.forEach(element => console.log("### searchText_element:",element));
@@ -1007,10 +1004,10 @@ import React, {
       for(let i in keys){  console.log("### searchText_i:",keys[i])    }
               
       let keys_len = keys.length; // key 길이
-      const filteredData = orgdata.filter(value => {  
+      const filteredData = oriData.filter(value => {  
         let ret = false; 
         for(let i=0; i<keys_len; i++){
-          let obj = value[keys[i]].toString().toLowerCase().includes(keyword.toLowerCase());
+          let obj = value[keys[i]]!==undefined?value[keys[i]].toString().toLowerCase().includes(keyword.toLowerCase()):false;
           if(obj === true){
             ret = true;
           }
@@ -1024,8 +1021,12 @@ import React, {
       console.log("### searchText_filterTable:", filteredData);
       console.log("### searchText_orgdata:", orgdata);
 
+      setChangeData(filteredData);
+
+      //changedData = filteredData;
+
       
-      onChangedSelectedDataUpdate(filteredData, orgdata);
+      //onChangedSelectedDataUpdate(filteredData, orgdata);
       
 
       
